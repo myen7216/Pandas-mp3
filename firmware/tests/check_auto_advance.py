@@ -25,6 +25,7 @@ def function(name):
     return source[match.start():pos]
 
 guard = re.search(r'constexpr uint32_t TRACK_FINISH_GUARD_MS = [^;]+;', source)
+volume_limits = '\n'.join(re.findall(r'constexpr int (?:DEFAULT_VOLUME|MAX_VOLUME) = [^;]+;', source))
 program = r'''
 #include <cassert>
 #include <cstdint>
@@ -64,6 +65,7 @@ float wavePhase=0;
 bool presses[5]={};
 bool buttonPressed(int i){bool p=presses[i];presses[i]=false;return p;}
 void updateDisplay(){redraws++;}
+void maintainDisplayOrientation(){}
 void checkIdleSleep(){}
 bool updateBatteryGauge(){return false;}
 struct Panda {void update(uint32_t,bool,uint32_t){}} pandaWalker;
@@ -74,6 +76,7 @@ struct Player {
   Event last{};
   std::vector<int> plays;
   int paused=0, resumed=0;
+  int lastVolume=-1, volumeWrites=0;
   bool available(){return !pending.empty();}
   uint8_t readType(){last=pending.front();pending.pop_front();return last.type;}
   uint8_t readCommand(){return last.command;}
@@ -81,9 +84,10 @@ struct Player {
   void playMp3Folder(int t){plays.push_back(t);}
   void start(){resumed++;}
   void pause(){paused++;}
-  void volume(int){}
+  void volume(int value){lastVolume=value;volumeWrites++;}
 } dfPlayer;
 GUARD
+VOLUME_LIMITS
 FUNCTIONS
 void reset(int track=1){
   clockNow=300000;trackStartTime=0;totalPausedDuration=0;pauseStartTime=0;
@@ -98,6 +102,13 @@ void finish(int number=1,uint8_t command=0x3D){
   dfPlayer.pending.push_back({DFPlayerPlayFinished,number,command});
 }
 int main(){
+  assert(DEFAULT_VOLUME==1 && MAX_VOLUME==10);
+  reset();currentVolume=2;presses[4]=true;loop();assert(currentVolume==1 && dfPlayer.lastVolume==1);
+  presses[4]=true;loop();assert(currentVolume==0 && dfPlayer.lastVolume==0);
+  presses[4]=true;loop();assert(currentVolume==0);
+  presses[3]=true;loop();assert(currentVolume==1 && dfPlayer.lastVolume==1);
+  currentVolume=9;presses[3]=true;loop();assert(currentVolume==10);
+  presses[3]=true;loop();assert(currentVolume==10 && dfPlayer.lastVolume==10);
   // Reproduce the user's fault: two finish frames, one read per loop before fix.
   reset();finish();finish();loop();loop();
   assert(currentTrack==2 && (dfPlayer.plays==std::vector<int>{2}));
@@ -171,7 +182,7 @@ int main(){
   assert(!isPlaying && dfPlayer.plays.empty() && dfPlayer.paused==0 && dfPlayer.resumed==0);
   std::cout<<"PASS: audio regressions plus gameplay/game-over automatic-next, preserved pause/volume/timer, final score retained until restart, reset to zero.\n";
 }
-'''.replace('GUARD', guard.group() if guard else '').replace(
+'''.replace('GUARD', guard.group() if guard else '').replace('VOLUME_LIMITS',volume_limits).replace(
     'FUNCTIONS', '\n'.join(function(n) for n in (
         'resetTrackTimer', 'markPlaybackStopped', 'processGameInput', 'handlePlayerEvents', 'loop')))
 
