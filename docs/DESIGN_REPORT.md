@@ -71,6 +71,13 @@ The battery gauge measures voltage through a divider, averages samples, applies 
 | USB-C charging incompatibility | USB-A-to-C worked while C-to-C did not | Use the working cable; explain missing/miswired CC pull-downs as a likely board limitation | Exact charger-board CC circuit was not measured |
 | Game controls conflicted with music | Same buttons serve two purposes | Route input by mode, consume entry/exit chord and require release | Tests cover cancellation, continued holds and first fresh tap after exit |
 
+## Later comfort and display fixes
+
+| Issue | Change | Limit |
+|---|---|---|
+| Level 2 felt medium-loud and 30 was excessive | Start at 1, use single-step changes, cap at 10 | Level 1 is the lowest nonzero DFPlayer setting; quieter output may require physical attenuation |
+| OLED occasionally appeared upside down | Reassert normal segment/COM mapping before every frame and periodically while idle | No intentional rotation path was found; the underlying supply or I²C fault is not established |
+
 ## What worked and what is still limited
 
 The player evolved through separate board, audio, display and button tests into a soldered assembly. The final firmware contains the complete UI, power policy and game. The newest game/score revisions are compile- and host-tested; a compile log is not a claim of physical upload or gameplay validation.
