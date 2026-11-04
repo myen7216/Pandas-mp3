@@ -102,13 +102,13 @@ void finish(int number=1,uint8_t command=0x3D){
   dfPlayer.pending.push_back({DFPlayerPlayFinished,number,command});
 }
 int main(){
-  assert(DEFAULT_VOLUME==1 && MAX_VOLUME==10);
+  assert(DEFAULT_VOLUME==1 && MAX_VOLUME==20);
   reset();currentVolume=2;presses[4]=true;loop();assert(currentVolume==1 && dfPlayer.lastVolume==1);
   presses[4]=true;loop();assert(currentVolume==0 && dfPlayer.lastVolume==0);
   presses[4]=true;loop();assert(currentVolume==0);
   presses[3]=true;loop();assert(currentVolume==1 && dfPlayer.lastVolume==1);
-  currentVolume=9;presses[3]=true;loop();assert(currentVolume==10);
-  presses[3]=true;loop();assert(currentVolume==10 && dfPlayer.lastVolume==10);
+  currentVolume=19;presses[3]=true;loop();assert(currentVolume==20);
+  presses[3]=true;loop();assert(currentVolume==20 && dfPlayer.lastVolume==20);
   // Reproduce the user's fault: two finish frames, one read per loop before fix.
   reset();finish();finish();loop();loop();
   assert(currentTrack==2 && (dfPlayer.plays==std::vector<int>{2}));
