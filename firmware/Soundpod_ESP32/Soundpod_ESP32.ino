@@ -65,7 +65,24 @@ int getSongDuration(int track) {
 #define SCREEN_HEIGHT 64
 #define OLED_ADDRESS 0x3D
 #define OLED_RESET -1
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// Keep the panel facing the same way.
+class SoundpodDisplay : public Adafruit_SSD1306 {
+public:
+  using Adafruit_SSD1306::Adafruit_SSD1306;
+
+  void restoreOrientation() {
+    setRotation(0);
+    ssd1306_command(SSD1306_SEGREMAP | 0x01);
+    ssd1306_command(SSD1306_COMSCANDEC);
+  }
+
+  void display() {
+    restoreOrientation();
+    Adafruit_SSD1306::display();
+  }
+};
+SoundpodDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 constexpr uint8_t OLED_SDA = 21;
 constexpr uint8_t OLED_SCL = 22;
@@ -132,11 +149,13 @@ constexpr uint32_t IDLE_SLEEP_MS = 10UL * 60UL * 1000UL;
 constexpr uint32_t BUTTON_IDLE_GRACE_MS = 2000;
 constexpr uint8_t CPU_MHZ = 80;
 constexpr uint8_t OLED_PLAY_CONTRAST = 0x7F;
+constexpr int DEFAULT_VOLUME = 1;
+constexpr int MAX_VOLUME = 10;
 constexpr gpio_num_t SLEEP_WAKE_PIN = static_cast<gpio_num_t>(BTN_PLAY);
 constexpr uint32_t SAVED_STATE_MAGIC = 0x534F554E;
 RTC_DATA_ATTR uint32_t savedStateMagic = 0;
 RTC_DATA_ATTR int savedTrack = 1;
-RTC_DATA_ATTR int savedVolume = 10;
+RTC_DATA_ATTR int savedVolume = DEFAULT_VOLUME;
 bool wokeFromIdleSleep = false;
 bool sleepAvailable = true;
 uint32_t lastButtonActivity = 0;
@@ -158,7 +177,7 @@ std::atomic<uint8_t> gameHeldButtons{0};
 // Playback state.
 bool isPlaying = true;
 int currentTrack = 1;
-int currentVolume = 10;
+int currentVolume = DEFAULT_VOLUME;
 
 unsigned long lastAnimUpdate = 0;
 const unsigned long ANIM_INTERVAL = 33;
@@ -200,7 +219,7 @@ void setup() {
                      && savedStateMagic == SAVED_STATE_MAGIC;
   if (wokeFromIdleSleep) {
     currentTrack = constrain(savedTrack, 1, totalTracks);
-    currentVolume = constrain(savedVolume, 0, 30);
+    currentVolume = constrain(savedVolume, 0, MAX_VOLUME);
   }
   savedStateMagic = 0;
 
@@ -228,6 +247,7 @@ void setup() {
     showSetupError(F("SSD1306 allocation failed"));
   }
   oledReady = true;
+  display.restoreOrientation();
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
 
@@ -441,8 +461,18 @@ bool buttonPressed(uint8_t index) {
   return true;
 }
 
+// Refresh orientation even on a paused screen.
+void maintainDisplayOrientation() {
+  static uint32_t lastRefresh = 0;
+  const uint32_t now = millis();
+  if (!oledReady || now - lastRefresh < 1000) return;
+  display.restoreOrientation();
+  lastRefresh = now;
+}
+
 // Main player loop.
 void loop() {
+  maintainDisplayOrientation();
   bool needsUpdate = processGameInput();
   const uint8_t gameHeld = gameHeldButtons.load(std::memory_order_relaxed);
   if (bambooGame.active && gameHeld) lastButtonActivity = lastGameActivity = millis();
@@ -491,14 +521,14 @@ void loop() {
     }
 
     if (buttonPressed(3)) {
-      currentVolume = min(currentVolume + 2, 30);
+      currentVolume = min(currentVolume + 1, MAX_VOLUME);
       dfPlayer.volume(currentVolume);
       volumeShownUntil = millis() + VOLUME_DISPLAY_MS;
       needsUpdate = true;
     }
 
     if (buttonPressed(4)) {
-      currentVolume = max(currentVolume - 2, 0);
+      currentVolume = max(currentVolume - 1, 0);
       dfPlayer.volume(currentVolume);
       volumeShownUntil = millis() + VOLUME_DISPLAY_MS;
       needsUpdate = true;
