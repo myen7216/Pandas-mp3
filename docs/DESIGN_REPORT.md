@@ -75,7 +75,7 @@ The battery gauge measures voltage through a divider, averages samples, applies 
 
 | Issue | Change | Limit |
 |---|---|---|
-| Level 2 felt medium-loud and 30 was excessive | Start at 1, use single-step changes, cap at 10 | Level 1 is the lowest nonzero DFPlayer setting; quieter output may require physical attenuation |
+| Level 2 felt medium-loud and 30 was excessive | Start at 1, use single-step changes, cap at 20 | Level 1 is the lowest nonzero DFPlayer setting; quieter output may require physical attenuation |
 | OLED occasionally appeared upside down | Reassert normal segment/COM mapping before every frame and periodically while idle | No intentional rotation path was found; the underlying supply or I²C fault is not established |
 
 ## What worked and what is still limited

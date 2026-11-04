@@ -62,6 +62,6 @@ Actual rail voltages, runtime and final audio quality should be recorded as meas
 
 ## Quiet volume and OLED orientation revision
 
-The startup volume is 1; buttons step by 1 over 0..10, and restored wake volume is clamped to that range. The production-loop test covers reaching level 1, mute and the upper bound.
+The startup volume is 1; buttons step by 1 over 0..20, and restored wake volume is clamped to that range. The production-loop test covers reaching level 1, mute and the upper bound.
 
 `check_display_orientation.py` exercises the production display subclass and idle maintenance with a simulated SSD1306: normal/game/game-over transfers restore software rotation 0 and hardware commands A1/C8, and idle maintenance repeats once per second without redrawing the framebuffer or changing contrast. This tests the recovery logic, not the physical cause of a flip. A loose/powered-down panel or sustained bus fault still needs an electrical repair. Physical recovery has not been verified on the board.
