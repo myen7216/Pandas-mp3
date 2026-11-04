@@ -125,6 +125,14 @@ arduino-cli board list
 arduino-cli upload --fqbn esp32:esp32:esp32 --port YOUR_PORT firmware/Soundpod_ESP32
 ```
 
+## Volume and screen orientation
+
+Volume now starts at **1**, changes one level per tap, and is capped at **10**. Level 0 mutes. Deep-sleep wake restores the previous volume within that range. The cap is a comfort-oriented firmware limit, not a calibrated hearing-safety limit.
+
+The DFPlayer accepts integer volume levels only. If level 1 is still too loud with your headphones, a stereo attenuator, suitable stereo volume control, or quieter source files are needed; firmware cannot request a level between 0 and 1.
+
+The OLED now reasserts its normal segment/COM orientation before each frame and once per second while idle, including during the game. No existing code intentionally rotates the panel. This guards against a flipped controller state, but a recurring glitch still needs inspection of OLED 3V3/GND, SDA/SCL solder joints and power stability. Hardware root cause and physical recovery are not yet confirmed.
+
 ## Adding music
 
 Put normal MP3 files in the card's `/mp3` folder:
