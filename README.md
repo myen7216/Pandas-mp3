@@ -127,7 +127,7 @@ arduino-cli upload --fqbn esp32:esp32:esp32 --port YOUR_PORT firmware/Soundpod_E
 
 ## Volume and screen orientation
 
-Volume now starts at **1**, changes one level per tap, and is capped at **10**. Level 0 mutes. Deep-sleep wake restores the previous volume within that range. The cap is a comfort-oriented firmware limit, not a calibrated hearing-safety limit.
+Volume now starts at **1**, changes one level per tap, and is capped at **20**. Level 0 mutes. Deep-sleep wake restores the previous volume within that range. The cap is a comfort-oriented firmware limit, not a calibrated hearing-safety limit.
 
 The DFPlayer accepts integer volume levels only. If level 1 is still too loud with your headphones, a stereo attenuator, suitable stereo volume control, or quieter source files are needed; firmware cannot request a level between 0 and 1.
 
