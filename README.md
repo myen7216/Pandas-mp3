@@ -4,12 +4,26 @@ A handmade, rechargeable MP3 player with stereo wired-headphone output, a 128×6
 
 The ESP32 handles the screen, controls and game. The DFPlayer reads the microSD card and decodes the music. Keeping these jobs separate makes the player responsive without running Wi-Fi or Bluetooth.
 
+## Photos and videos
+
+<p align="center">
+  <img src="assets/media/IMG_7909.jpg" width="250" alt="Finished ESP32 MP3 player with OLED and five buttons">
+  <img src="assets/media/IMG_7910.jpg" width="250" alt="Side view of the soldered player">
+  <img src="assets/media/IMG_6540.jpg" width="250" alt="Battery-powered breadboard prototype">
+</p>
+
+[**View all seven build photos and five video demos →**](assets/media/README.md)
+
+The gallery includes the finished assembly, internal wiring, breadboard prototype and hand-drawn wiring sketch.
+
+## Display previews
+
 <p align="center">
   <img src="assets/panda-intro.png" width="330" alt="Panda intro display preview">
   <img src="assets/playback.png" width="330" alt="Music screen with elapsed time, artist, waveform and battery icon">
 </p>
 
-*Images are enlarged software display previews, not photographs of a finished enclosure. The playback preview uses an example volume/battery state.*
+*The two images above are enlarged software display previews, separate from the real build photos in the gallery. The playback preview uses an example volume/battery state.*
 
 ## What it does
 
@@ -139,7 +153,7 @@ firmware/
   03_Audio_Test/       DFPlayer diagnostic sketch
   04_Button_Test/      Button diagnostic sketch
   tests/               Host-side regression checks
-assets/                Selected display previews
+assets/                Display previews and actual build photos/videos
 docs/                 Wiring, assembly, design report and troubleshooting
 extras/song_catalog/   Inactive offline catalog helper
 tools/                Check runner and repository validation
